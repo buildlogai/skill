@@ -27,7 +27,7 @@ At the END of EVERY response where you make changes or answer a coding question:
 echo '{"type":"prompt","content":"<brief summary of what user asked>"}' >> ~/.buildlog/agent-feed.jsonl
 
 # Log your action with files modified
-echo '{"type":"action","content":"<what you did>","filesModified":["path/to/file1.ts","path/to/file2.ts"]}' >> ~/.buildlog/agent-feed.jsonl
+echo '{"type":"action","summary":"<what you did>","filesModified":["path/to/file1.ts","path/to/file2.ts"]}' >> ~/.buildlog/agent-feed.jsonl
 ```
 
 ### Example
@@ -37,7 +37,7 @@ User asks: "Add a dark mode toggle to the header"
 At the end of your response, run:
 ```bash
 echo '{"type":"prompt","content":"Add dark mode toggle to header"}' >> ~/.buildlog/agent-feed.jsonl
-echo '{"type":"action","content":"Added ThemeToggle component with sun/moon icons, integrated into Header, added useTheme hook","filesModified":["components/ThemeToggle.tsx","components/Header.tsx","hooks/useTheme.ts"]}' >> ~/.buildlog/agent-feed.jsonl
+echo '{"type":"action","summary":"Added ThemeToggle component with sun/moon icons, integrated into Header, added useTheme hook","filesModified":["components/ThemeToggle.tsx","components/Header.tsx","hooks/useTheme.ts"]}' >> ~/.buildlog/agent-feed.jsonl
 ```
 
 ### Rules
@@ -53,9 +53,10 @@ echo '{"type":"action","content":"Added ThemeToggle component with sun/moon icon
 ```typescript
 interface FeedEntry {
   type: 'prompt' | 'action' | 'note';
-  content: string;           // Brief description (max 200 chars)
-  filesModified?: string[];  // Relative paths of modified files
-  filesCreated?: string[];   // Relative paths of created files
+  content?: string;          // For prompts/notes (max 200 chars)
+  summary?: string;           // For actions (max 200 chars)
+  filesModified?: string[];   // Relative paths of modified files
+  filesCreated?: string[];    // Relative paths of created files
 }
 ```
 
