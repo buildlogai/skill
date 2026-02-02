@@ -23,8 +23,8 @@ At the END of EVERY response where you make changes or answer a coding question:
 ### Format
 
 ```bash
-# Log the user's prompt
-echo '{"type":"prompt","content":"<brief summary of what user asked>"}' >> ~/.buildlog/agent-feed.jsonl
+# Log the user's prompt (include both raw and summary)
+echo '{"type":"prompt","raw":"<exact user prompt up to 2000 chars>","content":"<brief summary of what user asked>"}' >> ~/.buildlog/agent-feed.jsonl
 
 # Log your action with files modified
 echo '{"type":"action","summary":"<what you did>","filesModified":["path/to/file1.ts","path/to/file2.ts"]}' >> ~/.buildlog/agent-feed.jsonl
@@ -32,31 +32,44 @@ echo '{"type":"action","summary":"<what you did>","filesModified":["path/to/file
 
 ### Example
 
-User asks: "Add a dark mode toggle to the header"
+User asks: "Add a dark mode toggle to the header component so users can switch between light and dark themes"
 
 At the end of your response, run:
 ```bash
-echo '{"type":"prompt","content":"Add dark mode toggle to header"}' >> ~/.buildlog/agent-feed.jsonl
+echo '{"type":"prompt","raw":"Add a dark mode toggle to the header component so users can switch between light and dark themes","content":"Add dark mode toggle to header"}' >> ~/.buildlog/agent-feed.jsonl
 echo '{"type":"action","summary":"Added ThemeToggle component with sun/moon icons, integrated into Header, added useTheme hook","filesModified":["components/ThemeToggle.tsx","components/Header.tsx","hooks/useTheme.ts"]}' >> ~/.buildlog/agent-feed.jsonl
 ```
 
 ### Rules
 
 1. **Always log** - Every response that involves code changes must be logged
-2. **Be concise** - Keep content under 200 characters
-3. **List files** - Include all files you created or modified in `filesModified`
-4. **Use terminal** - Run the echo commands, don't just show them
-5. **Log at the end** - After all your code changes are complete
+2. **Include raw prompt** - Copy the user's exact prompt into `raw` (up to 2000 chars)
+3. **Summarize** - Put a brief summary in `content` (under 200 chars)
+4. **List files** - Include all files you created or modified in `filesModified`
+5. **Use terminal** - Run the echo commands, don't just show them
+6. **Log at the end** - After all your code changes are complete
 
 ### JSON Schema
 
 ```typescript
-interface FeedEntry {
-  type: 'prompt' | 'action' | 'note';
-  content?: string;          // For prompts/notes (max 200 chars)
-  summary?: string;           // For actions (max 200 chars)
-  filesModified?: string[];   // Relative paths of modified files
-  filesCreated?: string[];    // Relative paths of created files
+interface PromptEntry {
+  type: 'prompt';
+  raw?: string;              // Exact user prompt (up to 2000 chars)
+  content: string;           // Brief summary (max 200 chars)
+  context?: string[];        // Files referenced in the prompt
+}
+
+interface ActionEntry {
+  type: 'action';
+  summary: string;           // What was done (max 200 chars)
+  filesModified?: string[];  // Relative paths of modified files
+  filesCreated?: string[];   // Relative paths of created files
+}
+
+interface NoteEntry {
+  type: 'note';
+  content: string;           // Note content (max 200 chars)
+  category?: 'observation' | 'decision' | 'blocker' | 'idea';
 }
 ```
 
